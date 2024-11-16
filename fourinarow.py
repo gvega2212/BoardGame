@@ -24,7 +24,7 @@ YELLOW = (255, 255, 0)
 
 # Screen setup
 screen = pygame.display.set_mode(SIZE)
-pygame.display.set_caption("Connect 4 with Restart, Undo, and 1v1 Mode")
+pygame.display.set_caption("Connect 4 with Smarter Bot")
 
 # Fonts
 small_font = pygame.font.SysFont("monospace", 30)
@@ -147,24 +147,6 @@ def start_game():
                     pygame.draw.circle(screen, YELLOW, (posx, int(SQUARESIZE / 2)), RADIUS)
                     pygame.display.update()
 
-                if event.type == pygame.KEYDOWN:
-                    # Undo functionality
-                    if event.key == pygame.K_u:
-                        # Undo both moves if two or more moves exist
-                        if len(moves_stack) >= 2:
-                            for _ in range(2):  # Remove last two moves
-                                last_move = moves_stack.pop()
-                                row, col, player = last_move
-                                grid[row][col] = 0  # Remove the piece from the grid
-                            current_player = 1  # Revert to player's turn
-                            draw_grid(grid)
-                        elif len(moves_stack) == 1:  # Undo only one move if only one exists
-                            last_move = moves_stack.pop()
-                            row, col, player = last_move
-                            grid[row][col] = 0
-                            current_player = player
-                            draw_grid(grid)
-
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     posx = event.pos[0]
                     col = int(posx // SQUARESIZE)
@@ -187,7 +169,7 @@ def start_game():
 
             if game_mode == "bot" and current_player == 2 and not game_over:
                 pygame.time.wait(500)
-                col = random.choice([c for c in range(COLUMN_COUNT) if grid[ROW_COUNT - 1][c] == 0])
+                col = bot_move(grid)  # Smarter bot logic
                 row = next(r for r in range(ROW_COUNT) if grid[r][col] == 0)
                 grid[row][col] = 2
                 moves_stack.append((row, col, current_player))  # Push bot's move onto the stack
@@ -209,6 +191,33 @@ def start_game():
             else:
                 pygame.quit()
                 sys.exit()
+
+
+def bot_move(grid):
+    """Smarter bot logic to prioritize winning and blocking moves."""
+    # Check for bot winning moves first (priority 1)
+    for col in range(COLUMN_COUNT):
+        if grid[ROW_COUNT - 1][col] == 0:  # Column is valid
+            row = next(r for r in range(ROW_COUNT) if grid[r][col] == 0)
+            grid[row][col] = 2  # Simulate bot move
+            if check_win(grid, 2):  # Check if bot wins
+                grid[row][col] = 0  # Undo simulated move
+                return col  # Play here to win
+            grid[row][col] = 0  # Undo simulated move
+
+    # Check for blocking player winning moves (priority 2)
+    for col in range(COLUMN_COUNT):
+        if grid[ROW_COUNT - 1][col] == 0:  # Column is valid
+            row = next(r for r in range(ROW_COUNT) if grid[r][col] == 0)
+            grid[row][col] = 1  # Simulate player move
+            if check_win(grid, 1):  # Check if player wins
+                grid[row][col] = 0  # Undo simulated move
+                return col  # Block here
+            grid[row][col] = 0  # Undo simulated move
+
+    # Evaluate potential moves for bot (priority 3)
+    valid_columns = [col for col in range(COLUMN_COUNT) if grid[ROW_COUNT - 1][col] == 0]
+    return random.choice(valid_columns)  # Default random column if no other moves
 
 
 def check_win(grid, piece):
