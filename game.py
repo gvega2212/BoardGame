@@ -62,8 +62,13 @@ def draw_grid(grid, blink_positions=None):
 
     pygame.display.update()
 
+# complexity
+# Best case =(1)
+# Worst/ Avergae case = O(log n)
 
-def binary_search_least(arr): # complexity of O(log N)
+
+
+def binary_search_least(arr): 
     #finding round with least moves
     low, high = 0, len(arr) - 1
     while low < high:
@@ -158,6 +163,9 @@ def show_restart_popup():
 
 
 def bot_move(grid):
+    # Complexity:
+    # Best case: O(row count: 6)
+    #Worst/Average: O(6 x 7 -> column count times row count)
  
     # Priority 1: Check for bot's winning move
     for col in range(COLUMN_COUNT):
@@ -214,7 +222,7 @@ def bot_move(grid):
     return best_move[1]
 
 
-def quick_sort(arr): # Complexity: O(N * LOG(N))
+def quick_sort(arr): 
     if len(arr) <= 1:
         return arr
 
@@ -224,6 +232,9 @@ def quick_sort(arr): # Complexity: O(N * LOG(N))
     right = [x for x in arr if x[1] > pivot[1]]
 
     return quick_sort(left) + middle + quick_sort(right)
+# Complexity: 
+# Best/ Average :O(N * LOG(N))
+# Worse case: O(n^2)
 
 
 
