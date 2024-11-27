@@ -432,7 +432,7 @@ def check_win(grid, piece):
 
 
 def check_tie(grid):
-    """Check if the game is a tie."""
+    #check if there is a tie
     return all(grid[ROW_COUNT - 1][col] != 0 for col in range(COLUMN_COUNT))
 
 
