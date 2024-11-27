@@ -126,7 +126,7 @@ def show_scores(): #function for displaying the top scorer and lowest scorer
                     return  
 
 def show_restart_popup():
-    """Show a pop-up asking the player if they want to continue or view leaderboard."""
+    #Show a pop-up asking the player if they want to continue or view leaderboard
     while True:  # Keep showing the popup until a valid option is chosen
         screen.fill(BLACK)
         title = medium_font.render("Do you want to continue?", True, WHITE)
