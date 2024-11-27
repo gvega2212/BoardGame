@@ -5,6 +5,7 @@ from time import sleep
 # Initializing Pygame
 pygame.init()
 
+# Deciding the bounds of the grid
 ROW_COUNT = 6
 COLUMN_COUNT = 7
 SQUARESIZE = 100
@@ -25,7 +26,7 @@ GREEN = (0,128,0)
 screen = pygame.display.set_mode(SIZE)
 pygame.display.set_caption("Connect 4 with Leaderboard, Smarter Bot, and Undo")
 
-# Choosing fonts
+# Choosing our fonts
 small_font = pygame.font.SysFont("monospace", 30)
 medium_font = pygame.font.SysFont("monospace", 40)
 large_font = pygame.font.SysFont("monospace", 50)
@@ -36,9 +37,8 @@ score_record = []  #  record of scores
 game_mode = "bot"  # Default game mode: "bot" or "1v1"
 leaderboard = []  # We use this to track the number of moves for each game
 
-
+#Drawing the grid and scores
 def draw_grid(grid, blink_positions=None):
-    """Draw the game grid and scores."""
     screen.fill(WHITE)
 
     for c in range(COLUMN_COUNT):
@@ -55,7 +55,7 @@ def draw_grid(grid, blink_positions=None):
                 color = WHITE if blink_positions and (r, c) in blink_positions else YELLOW
                 pygame.draw.circle(screen, color, (int(c * SQUARESIZE + SQUARESIZE / 2), HEIGHT - int(r * SQUARESIZE + SQUARESIZE / 2)), RADIUS)
 
-    # Draw the score
+    # Drawing the score
     pygame.draw.rect(screen, BLACK, (0, 0, WIDTH, SQUARESIZE))
     score_text = medium_font.render(f"P1: {player_scores[0]}  P2/Bot: {player_scores[1]}", True, WHITE)
     screen.blit(score_text, (20, 10))
@@ -85,34 +85,32 @@ def binary_search_most(arr):
         low = mid  
     return arr[high] if arr else None
 
-def show_scores():
-    """Display the top scorer (least moves) and lowest scorer (most moves) using binary search."""
+def show_scores(): #function for displaying the top scorer and lowest scorer
     running = True
     screen.fill(BLACK)
 
-    # Title
+    # Creating the title
     title = large_font.render("Scores", True, WHITE)
     screen.blit(title, (WIDTH // 2 - title.get_width() // 2, 50))
 
-    if leaderboard:
-        # Ensure the leaderboard is already sorted (maintain sorted order during insertion)
+    if leaderboard: # Here we are ensuring that the leaderboard is already sorted and mantains this order during insertion
         least_entry = binary_search_least(leaderboard)
         most_entry = binary_search_most(leaderboard)
 
-        # Display top scorer
+        # Displaying top scorer
         top_text = small_font.render(f"Top Scorer: {least_entry[0]} with {least_entry[1]} moves", True, GREEN)
         screen.blit(top_text, (WIDTH // 2 - top_text.get_width() // 2, 150))
 
-        # Display lowest scorer
+        # Displaying lowest scorer
         low_text = small_font.render(f"Lowest Scorer: {most_entry[0]} with {most_entry[1]} moves", True, YELLOW)
         screen.blit(low_text, (WIDTH // 2 - low_text.get_width() // 2, 250))
 
     else:
-        # No scores available
+        # If no scores are available
         no_scores_text = small_font.render("No scores available yet!", True, RED)
         screen.blit(no_scores_text, (WIDTH // 2 - no_scores_text.get_width() // 2, 200))
 
-    # Display back option
+    # Giving the user the option to go back by pressing B
     back_option = small_font.render("Press B to go back", True, RED)
     screen.blit(back_option, (WIDTH // 2 - back_option.get_width() // 2, HEIGHT - 100))
 
@@ -125,7 +123,7 @@ def show_scores():
                 sys.exit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_b:  # You have to press 'B' to go back
-                    return  # Exit the function 
+                    return  
 
 def show_restart_popup():
     """Show a pop-up asking the player if they want to continue or view leaderboard."""
@@ -221,7 +219,9 @@ def bot_move(grid):
 
     return best_move[1]
 
-
+# Complexity: 
+# Best/ Average :O(N * LOG(N))
+# Worse case: O(n^2)
 def quick_sort(arr): 
     if len(arr) <= 1:
         return arr
@@ -232,14 +232,11 @@ def quick_sort(arr):
     right = [x for x in arr if x[1] > pivot[1]]
 
     return quick_sort(left) + middle + quick_sort(right)
-# Complexity: 
-# Best/ Average :O(N * LOG(N))
-# Worse case: O(n^2)
 
 
 
 def show_main_menu():
-    """Show the main menu for game mode selection."""
+    #Showing the main menu so the user can select a mode
     global game_mode
     running = True
     screen.fill(BLACK)
@@ -266,7 +263,7 @@ def show_main_menu():
                     running = False
 
 def show_winner_popup(winner):
-    """Show a pop-up announcing the winner."""
+    #Showing a pop-up that announces the winner
     popup_running = True
     screen.fill(BLACK)
 
@@ -279,14 +276,14 @@ def show_winner_popup(winner):
 
     screen.blit(title, (WIDTH // 2 - title.get_width() // 2, HEIGHT // 2 - title.get_height() // 2))
     pygame.display.update()
-    sleep(2)  # Pause for 2 seconds
+    sleep(2)  # Pause for 2 seconds so user can actually see what it says 
 
 
 def start_game():
     """Start the Connect 4 game."""
     global player_scores, leaderboard, score_record
 
-    # Initialize game variables
+    # Initializing the game variables
     grid = [[0 for _ in range(COLUMN_COUNT)] for _ in range(ROW_COUNT)]
     current_player = 1
     moves_stack = []  # Stack to store moves for undo functionality
@@ -397,16 +394,16 @@ def start_game():
                 sys.exit()
 
 def blink_winning_tokens(grid, winning_positions, piece):
-    """Blink the winning tokens to indicate the victory."""
+    #The 4 connected rows will blink to indicate victory
     for _ in range(5):  # Blink 5 times
-        draw_grid(grid, blink_positions=winning_positions)  # Highlight tokens
+        draw_grid(grid, blink_positions=winning_positions)  # Highlighting tokens
         pygame.time.wait(300)  # Pause for 300ms
         draw_grid(grid)  # Draw grid without highlights
         pygame.time.wait(300)  # Pause for 300ms
 
 def check_win(grid, piece):
-    """Check if the given piece has won and return the winning positions."""
-    # Check horizontal locations
+    # Checking if the given piece has won and returns the winning positions
+    # Checking horizontal locations
     for r in range(ROW_COUNT):
         for c in range(COLUMN_COUNT - 3):
             if all(grid[r][c + i] == piece for i in range(4)):
